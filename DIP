@@ -1,0 +1,48 @@
+#define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
+#include <ESP8266WiFi.h>
+
+
+// You should get Auth Token in the Blynk App.
+// Go to the Project Settings (nut icon).
+//char auth[] = "YourAuthToken";
+#define BLYNK_TEMPLATE_ID "TMPL6m-UOY92p" // Access code for Blynk
+#define BLYNK_TEMPLATE_NAME "BMS" // Access code for Blynk
+#define BLYNK_AUTH_TOKEN "M9BpsXbl3JkOrzozAKsXzokN0JTHX8Of"// Access code for Blynk
+
+// Your WiFi credentials.
+//char ssid[] = "YourNetworkName";
+//char pass[] = "YourPassword";
+
+// Pin assignments for sensors
+// Assuming analog pin for light intensity sensor
+
+void setup()
+{
+  Serial.begin(9600);
+  Blynk.begin(auth, ssid, pass);
+  pinMode(fanConPin, OUTPUT);
+  digitalWrite(fanConPin, LOW);
+}
+
+void loop()
+{
+  Blynk.run();
+  float calculateSOC = getTemperature();
+  float caluculateSOH = getHumidity();
+  int ambientTemp1 = getLightIntensity();
+
+  // Send sensor readings to Blynk
+  Blynk.virtualWrite(V0, calculateSOC);    // Virtual Pin 0 for SOC
+  Blynk.virtualWrite(V2, caluculateSOH);       // Virtual Pin 2 for SOH
+  Blynk.virtualWrite(V3, ambientTemp1); // Virtual Pin 3 for ambTemp
+  
+  delay(1000);  // Adjust delay as needed for your application
+}
+
+BLYNK_WRITE(V4) // Button widget on Virtual Pin V4
+{
+  int fanState = param.asInt();
+  digitalWrite(fanConPin, fanState);
+}
+
+}
